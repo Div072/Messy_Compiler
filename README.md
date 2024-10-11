@@ -1,2 +1,2 @@
 # Messy_Compier
-Creating just test compiler for learning
+Creating a C compiler for learning 
