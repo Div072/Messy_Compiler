@@ -16,8 +16,8 @@ result2 = subprocess.run(['./b.out'])
 # Step 4: Get the return value (exit code) of a.out using $? and echo it
 return_code = result.returncode
 return_code2 = result2.returncode
-print(f"Return value of our (exit code): {return_code}")
-print(f"return value of gcc (exit code): {return_code2}")
+print(f"Return value of messy_compiler (exit code): {return_code}")
+print(f"Return value of gcc (exit code): {return_code2}")
 
 # Step 5: Clean up: remove a.out and generated.s
 print("Cleaning up files...")
