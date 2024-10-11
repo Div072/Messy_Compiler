@@ -61,6 +61,24 @@ class Left_Shift(Operator):
 class Right_Shift(Operator):
     def __repr__(self):
         return "Right_Shift"
+class Greater(Operator):
+    def __repr__(self):
+        return "Greater"
+class Less(Operator):
+    def __repr__(self):
+        return "Less"
+class GreaterEqual(Operator):
+    def __repr__(self):
+        return "GreaterEqual"
+class LessEqual(Operator):
+    def __repr__(self):
+        return "LessEqual"
+class Equal_Equal(Operator):
+    def __repr__(self):
+        return "Equal_Equal"
+class Not_Equal(Operator):
+    def __repr__(self):
+        return "Not_Equal"
 class Val:
     pass
 # it generates ir value like

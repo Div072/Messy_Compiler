@@ -12,7 +12,7 @@ def initiate_pointer(keyword,value):
     stack_map[keyword] = value
 stack = Ass_Stack(0)
 
-def convert_ast_to_assembly(Ir_ast_node) -> Union[Program, Function]:
+def convert_ast_to_assembly(Ir_ast_node):
     if isinstance(Ir_ast_node,IR_code.Program):
 
         function_def = convert_ast_to_assembly(Ir_ast_node.fun_defination)
@@ -159,8 +159,9 @@ def third_pass_traverse(ass_obj,instructions = []):
         right = third_pass_traverse(ass_obj.right,instructions)
         dst = right
         operator = ass_obj.binary_operator
-        if isinstance(operator,Ass_Ast.Ass_Add):
+        if isinstance(operator,Ass_Ast.Ass_Add) or isinstance(operator,Ass_Ast.Ass_Sub):
             if isinstance(left, Ass_Ast.Ass_Stack) and isinstance(right, Ass_Ast.Ass_Stack):
+                instructions[cnt.row_counter].insert(cnt.col_counter,Mov(left,Register("r10d")))
                 ass_obj.left = Register("r10d")
         if isinstance(operator,Ass_Ast.Ass_Mul):
             if isinstance(right,Ass_Ast.Ass_Stack):
@@ -170,6 +171,7 @@ def third_pass_traverse(ass_obj,instructions = []):
                 instructions[cnt.row_counter].insert(cnt.col_counter+1,Mov(Register("r11d"),dst))
         if isinstance(operator,Ass_Ast.Ass_Bit_And) or isinstance(operator,Ass_Bit_Or) or isinstance(operator,Ass_Bit_Xor):
             if isinstance(left,Ass_Ast.Ass_Stack) and isinstance(right,Ass_Ast.Ass_Stack):
+                instructions[cnt.row_counter].insert(cnt.col_counter,Mov(left,Register("r10d")))
                 ass_obj.left = Register("r10d")
 
     if isinstance(ass_obj,Ass_Ast.Ass_Stack):

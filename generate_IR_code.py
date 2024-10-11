@@ -88,4 +88,15 @@ class parse_to_IR():
             return Left_Shift()
         elif operator.type == Tokentype.RIGHT_SWIFT:
             return Right_Shift()
-
+        elif operator.type == Tokentype.GREATER:
+            return Greater()
+        elif operator.type ==Tokentype.GREATER_EQUAL:
+            return GreaterEqual()
+        elif operator.type == Tokentype.LESS:
+            return Less()
+        elif operator.type == Tokentype.LESS_EQUAL:
+            return LessEqual()
+        elif operator.type == Tokentype.EQUAL_EQUAL:
+            return Equal_Equal()
+        elif operator.type == Tokentype.BANG_EQUAL:
+            return Not_Equal()

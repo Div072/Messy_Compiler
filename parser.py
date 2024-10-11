@@ -1,6 +1,3 @@
-from unittest.mock import right
-
-from ass_traverser import second_pass_traverse
 from parser_ast_expr_stmt import*
 from Token import*
 """Precedence Table (from highest to lowest)
@@ -20,7 +17,6 @@ class Parser:
     def __init__(self,tokens):
         self.curr = 0
         self.tokens = tokens
-        self.pecendece = {Tokentype.MINUS:45,Tokentype.DIVIDE:50,Tokentype.MULTIPLY:50,Tokentype.PLUS:45}
     def parse(self):
         return self.program()
 
@@ -69,7 +65,23 @@ class Parser:
             exit()
         return Fun_Declaration(name,statements)
     def expr(self):
-        return self.bit_or()
+        return self.logical_or()
+    def logical_or(self):
+        left = self.logical_and()
+        while self.peek().type == Tokentype.OR:
+            operator = self.peek()
+            self.advance()
+            right = self.logical_and()
+            left = Binary(operator,left,right)
+        return left
+    def logical_and(self):
+        left = self.bit_or()
+        while self.peek().type == Tokentype.AND:
+            operator = self.peek()
+            self.advance()
+            right = self.bit_or()
+            left = Binary(operator,left,right)
+        return left
     def bit_or(self):
         left = self.bit_xor()
         while self.peek().type == Tokentype.BIT_OR:
@@ -87,8 +99,24 @@ class Parser:
             left = Binary(operator, left, right)
         return left
     def bit_and(self):
-        left = self.bit_shift()
+        left = self.equality()
         while self.peek().type == Tokentype.BIT_AND:
+            self.advance()
+            operator = self.peek_previous()
+            right = self.equality()
+            left = Binary(operator, left, right)
+        return left
+    def equality(self):
+        left = self.relational()
+        while self.peek().type == Tokentype.BANG_EQUAL or self.peek().type == Tokentype.EQUAL_EQUAL:
+            self.advance()
+            operator = self.peek_previous()
+            right = self.relational()
+            left = Binary(operator, left, right)
+        return left
+    def relational(self):
+        left = self.bit_shift()
+        while self.peek().type == Tokentype.LESS_EQUAL or self.peek().type == Tokentype.LESS or self.peek().type == Tokentype.GREATER_EQUAL or self.peek().type == Tokentype.GREATER:
             self.advance()
             operator = self.peek_previous()
             right = self.bit_shift()
@@ -105,14 +133,14 @@ class Parser:
     def factor(self):
         left = self.term()
         while self.peek().type == Tokentype.PLUS or self.peek().type == Tokentype.MINUS:
-            operator = self.peek()
             self.advance() #consume + or -
+            operator = self.peek()
             right = self.term()
             left = Binary(operator,left,right)
         return left
     def term(self):
         left = self.unary()
-        while self.peek().type == Tokentype.MULTIPLY or self.peek().type == Tokentype.DIVIDE:
+        while self.peek().type == Tokentype.MULTIPLY or self.peek().type == Tokentype.DIVIDE or self.peek().type == Tokentype.REMAINDER:
             operator = self.peek()
             self.advance() #consume * /
             right = self.unary()
@@ -120,7 +148,7 @@ class Parser:
         return left
 
     def unary(self):
-        if self.peek().type == Tokentype.MINUS or self.peek().type == Tokentype.B_NOT:
+        if self.peek().type == Tokentype.MINUS or self.peek().type == Tokentype.B_NOT or self.peek().type == Tokentype.BANG:
             operator = self.peek()
             self.advance() # consume ~/-
             expr = self.unary()

@@ -21,8 +21,8 @@ class Ass_Generator:
     def visi_function(self,function:Function):
         self.emit(f".global {function.name}")
         self.emit(f"{function.name}: ")
-        self.emit(f"  pushq    %rbp")
-        self.emit("  movq   %rsp, %rbp")
+        self.emit(f"    pushq    %rbp")
+        self.emit("     movq   %rsp, %rbp")
         for instruction in function.instructions:
             self.visit_instruction(instruction)
     def visit_instruction(self,instructions:Instruction):
@@ -44,19 +44,19 @@ class Ass_Generator:
             else:
                 raise ValueError(f"Unknown instruction type: {type(instruction)}")
     def visit_allocateStack(self,allocatestack:AlocateStack):
-        self.emit(f"subq   ${allocatestack.pointer}, %rsp")
+        self.emit(f"    subq   ${allocatestack.pointer}, %rsp")
     def visit_Mov(self,mov:Mov):
         src  = self.visit_operand(mov.src)
         dst  =  self.visit_operand(mov.dst)
         self.emit(f"    movl    {src}, {dst}")
     def visit_ret(self,ret:Ret):
-        self.emit("    movq    %rbp, %rsp")
-        self.emit("    popq    %rbp")
-        self.emit("    ret")
+        self.emit("     movq    %rbp, %rsp")
+        self.emit("     popq    %rbp")
+        self.emit("     ret")
     def visit_unary(self,un:Ass_Unary):
         operator = self.visit_unary_operator(un.operator)
         operand = self.visit_operand(un.operand)
-        self.emit(f"{operator}  {operand}")
+        self.emit(f"    {operator}  {operand}")
     def visit_binary(self,binary:Ass_Binary):
         op = self.visi_binary_operator(binary.binary_operator)
         src = self.visit_operand(binary.left)
@@ -66,7 +66,7 @@ class Ass_Generator:
         operand = self.visit_operand(idiv.operand)
         self.emit(f"    idivl  {operand}")
     def visit_cdq(self):
-        self.emit("cdq")
+        self.emit("     cdq")
     def visit_unary_operator(self,operator):
         if isinstance(operator,Ass_Neg):
             return "negl"
