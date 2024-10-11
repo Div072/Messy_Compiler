@@ -133,8 +133,9 @@ class Parser:
     def factor(self):
         left = self.term()
         while self.peek().type == Tokentype.PLUS or self.peek().type == Tokentype.MINUS:
-            self.advance() #consume + or -
+
             operator = self.peek()
+            self.advance() #consume + or -
             right = self.term()
             left = Binary(operator,left,right)
         return left

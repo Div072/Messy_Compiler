@@ -57,7 +57,7 @@ def convert_ast_to_assembly(Ir_ast_node):
                     Ass_Binary(convert_ast_to_assembly(operator),convert_ast_to_assembly(src2),convert_ast_to_assembly(dst))
                     ]
         else:
-            raise ValueError("Not defined type of Ir code operator",Ir_ast_node)
+            raise ValueError("Not defined type of Ir code operator",operator)
     if isinstance(Ir_ast_node,IR_code.Variable):
         return Pseudo(Ir_ast_node.identifier)
     if isinstance(Ir_ast_node,IR_code.Const):
@@ -159,7 +159,7 @@ def third_pass_traverse(ass_obj,instructions = []):
         right = third_pass_traverse(ass_obj.right,instructions)
         dst = right
         operator = ass_obj.binary_operator
-        if isinstance(operator,Ass_Ast.Ass_Add) or isinstance(operator,Ass_Ast.Ass_Sub):
+        if isinstance(operator,Ass_Ast.Ass_Add) or isinstance(operator,Ass_Ast.Ass_Neg):
             if isinstance(left, Ass_Ast.Ass_Stack) and isinstance(right, Ass_Ast.Ass_Stack):
                 instructions[cnt.row_counter].insert(cnt.col_counter,Mov(left,Register("r10d")))
                 ass_obj.left = Register("r10d")

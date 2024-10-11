@@ -1,1 +1,1 @@
-int main() { return 2^(23|1);}
+int main() { return (2|3)^4;}
