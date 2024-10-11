@@ -12,11 +12,15 @@ class Visitor(ABC):
     def visitUnaryExpr(self,expr:Unary)->None:
         pass
     @abstractmethod
+    def visitBinaryExpr(self,expr:Binary)->None:
+        pass
+    @abstractmethod
     def visitRetrunStmt(self,stmt:Return)->None:
         pass
     @abstractmethod
     def visitProgramStmt(self,stmt)->None:
         pass
+
 
 
 class Expr(ABC):
@@ -35,7 +39,13 @@ class Literal(Expr):
         self.type = type
     def accept(self,visitor:Visitor):
         return visitor.visitLiteralExpr(self)
-
+class Binary(Expr):
+    def __init__(self,binary_op,left, right):
+        self.binary_op = binary_op
+        self.left = left
+        self.right = right
+    def accept(self,visitor:Visitor):
+        return visitor.visitBinaryExpr(self)
 
 class Stmt(ABC):
     def accept(self,visitor:Visitor)->None:

@@ -10,6 +10,7 @@ class Tokentype(Enum):
     MINUS = auto()
     MULTIPLY = auto()
     DIVIDE = auto()
+    REMAINDER = auto()
     EQUAL = auto()
     BANG = auto()
     OR =  auto()

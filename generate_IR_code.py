@@ -13,6 +13,8 @@ class parse_to_IR():
             return self.visitConstantExpr(obj)
         elif isinstance(obj,Unary):
             return self.visitUnaryExpr(obj,instruction)
+        elif isinstance(obj,Binary):
+            return self.visitBinaryExpr(obj.binary_op,obj.left,obj.right,instruction)
         elif isinstance(obj,ProgramStmt):
             return self.visitprogramStmt(obj)
         elif isinstance(obj,Fun_Declaration):
@@ -25,9 +27,7 @@ class parse_to_IR():
             elif obj.type == Tokentype.MINUS:
                 return self.visitNegOperator()
     def visitprogramStmt(self,stmt:ProgramStmt):
-
         declaration = self.traverse(stmt.fun_declaration)
-
         return Program(declaration)
 
     def visitFunStmt(self,stmt:Fun_Declaration):
@@ -48,6 +48,14 @@ class parse_to_IR():
         op = self.traverse(expr.operator)
         instructions.append(U_nary(op,src,dst))
         return dst
+    def visitBinaryExpr(self,operator:Token,left:Expr,right:Expr,instructions):
+        v1 = self.traverse(left,instructions)
+        v2 = self.traverse(right,instructions)
+        dst_name = self.make_identifer()
+        dst = Variable(dst_name)
+        op = self.convert_to_op(operator)
+        instructions.append(B_inary(op,v1,v2,dst))
+        return dst
     def visitConstantExpr(self,expr:Literal):
         return Const(expr.value)
     def visitComplementOperator(self):
@@ -62,4 +70,12 @@ class parse_to_IR():
             return Complement()
         elif operator.type == Tokentype.MINUS:
             return Negete()
+        elif operator.type == Tokentype.PLUS:
+            return Add()
+        elif operator.type == Tokentype.DIVIDE:
+            return Divide()
+        elif operator.type == Tokentype.MULTIPLY:
+            return Multiply()
+        elif operator.type == Tokentype.REMAINDER:
+            return Remainder()
 

@@ -2,7 +2,6 @@
 from typing import List, Union
 from IR_code import Operator
 
-
 class Operand:
     pass
 
@@ -44,28 +43,63 @@ class Mov(Instruction):
     def __repr__(self):
         return f"Mov({self.src}, {self.dst})"
 
-class Ret(Instruction):
+class Ret():
     def __repr__(self):
         return "Ret()"
 
-class Ass_Unary(Instruction):
+class Ass_Unary():
     def __init__(self,unary_operator,operand):
         self.operator = unary_operator
         self.operand = operand
     def __repr__(self):
         return  f"Ass_Unary {self.operator}  {self.operand}"
+class Ass_Binary():
+    def __init__(self,binary_operator,left,right):
+        self.binary_operator = binary_operator
+        self.left = left
+        self.right = right
+    def __repr__(self):
+        return f"Ass_Binary {self.left,self.right,self.binary_operator}"
 
-class Ass_Neg(Ass_Unary):
+class Ass_Idiv():
+    def __init__(self,operand):
+        self.operand = operand
+    def __repr__(self):
+        return f"Ass_Idiv {self.operand}"
+class Ass_Cdq():
+    def __repr__(self):
+        return "Ass_Cdq"
+
+class Ass_Neg():
     def __init__(self):
         pass
     def __repr__(self):
         return "Ass_Neg"
-class Ass_Not(Ass_Unary):
+class Ass_Not():
     def __init__(self):
         pass
     def __repr__(self):
         return "Ass_Not"
-
+class Ass_Add():
+    def __init__(self):
+        pass
+    def __repr__(self):
+        return "Ass_Add"
+class Ass_Add():
+    def __init__(self):
+        pass
+    def __repr__(self):
+        return "Ass_Add"
+class Ass_Sub():
+    def __init__(self):
+        pass
+    def __repr__(self):
+        return "Ass_sub"
+class Ass_Mul():
+    def __init__(self):
+        pass
+    def __repr__(self):
+        return "Ass_Mul"
 class AlocateStack():
     def __init__(self,val):
         self.pointer = val

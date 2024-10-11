@@ -44,6 +44,9 @@ class Lexer:
                case '/':
                     self.tokens.append(Token.addToken(Tokentype.DIVIDE, "DIVISION", self.line))
                     return
+               case '%':
+                    self.tokens.append(Token.addToken(Tokentype.REMAINDER,"Remainder",self.line))
+                    return
                case '>':
                     if self.peek() == '=':
                          self.advance()

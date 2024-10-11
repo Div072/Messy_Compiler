@@ -31,6 +31,22 @@ class Complement(Operator):
 class Negete(Operator):
     def __repr__(self):
         return "Ircode Negate"
+class Add(Operator):
+    def __repr__(self):
+        return "Add"
+class Subtract(Operator):
+    def __repr__(self):
+        return "Subtract"
+class Multiply():
+    def __repr__(self):
+        return "Multiply"
+class Divide(Operator):
+    def __repr__(self):
+        return "Divide"
+class Remainder(Operator):
+    def __repr__(self):
+        return "remainder"
+
 class Val:
     pass
 # it generates ir value like
@@ -57,4 +73,12 @@ class U_nary():
         self.ds = ds
     def __repr__(self):
         return"U_nary"
+class B_inary():
+    def __init__(self,operator:Operator,src1:Val,src2:Val,dst:Val):
+        self.operator = operator
+        self.src1 = src1
+        self.src2 = src2
+        self.dst = dst
+    def __repr__(self):
+        return "B_inary"
 
