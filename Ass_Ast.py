@@ -85,11 +85,6 @@ class Ass_Add():
         pass
     def __repr__(self):
         return "Ass_Add"
-class Ass_Add():
-    def __init__(self):
-        pass
-    def __repr__(self):
-        return "Ass_Add"
 class Ass_Sub():
     def __init__(self):
         pass
@@ -100,6 +95,21 @@ class Ass_Mul():
         pass
     def __repr__(self):
         return "Ass_Mul"
+class Ass_Bit_And():
+    def __repr__(self):
+        return "Ass_bit_and"
+class Ass_Bit_Or():
+    def __repr__(self):
+        return "Ass_bit_or"
+class Ass_Bit_Xor():
+    def __repr__(self):
+        return "Ass_bit_xor"
+class Ass_Bit_Left_Shift():
+    def __repr__(self):
+        return "Ass_bit_left_shift"
+class Ass_Bit_Right_Shift():
+    def __repr__(self):
+        return "Ass_bit_right_shift"
 class AlocateStack():
     def __init__(self,val):
         self.pointer = val

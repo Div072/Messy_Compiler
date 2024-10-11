@@ -46,7 +46,21 @@ class Divide(Operator):
 class Remainder(Operator):
     def __repr__(self):
         return "remainder"
-
+class Bit_Or(Operator):
+    def __repr__(self):
+        return"bit_or"
+class Bit_And(Operator):
+    def __repr__(self):
+        return "bit_and"
+class Bit_Xor(Operator):
+    def __repr__(self):
+        return "Bit_xor"
+class Left_Shift(Operator):
+    def __repr__(self):
+        return "left_Shift"
+class Right_Shift(Operator):
+    def __repr__(self):
+        return "Right_Shift"
 class Val:
     pass
 # it generates ir value like

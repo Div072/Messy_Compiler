@@ -79,6 +79,12 @@ class Ass_Generator:
             return "subl"
         if isinstance(operator,Ass_Mul):
             return "imull"
+        if isinstance(operator,Ass_Bit_And):
+            return "andl"
+        if isinstance(operator,Ass_Bit_Or):
+            return "orl"
+        if isinstance(operator,Ass_Bit_Xor):
+            return "xorl"
         else:
             raise ValueError("not recongnised binary_operator in ass_obj")
     def visit_operand(self,operand):

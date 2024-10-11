@@ -52,12 +52,12 @@ def convert_ast_to_assembly(Ir_ast_node) -> Union[Program, Function]:
                     Ass_Idiv(convert_ast_to_assembly(src2)),
                     Mov(Register("Dx"),convert_ast_to_assembly(dst))
                     ]
-        elif isinstance(operator,IR_code.Multiply) or isinstance(operator,IR_code.Add) or isinstance(operator,IR_code.Negete):
+        elif isinstance(operator,IR_code.Multiply) or isinstance(operator,IR_code.Add) or isinstance(operator,IR_code.Negete) or isinstance(operator,IR_code.Bit_Or) or isinstance(operator,IR_code.Bit_And) or isinstance(operator,IR_code.Bit_Xor) or isinstance(operator,IR_code.Left_Shift) or isinstance(operator,IR_code.Right_Shift):
             return [Mov(convert_ast_to_assembly(src1),convert_ast_to_assembly(dst)),
                     Ass_Binary(convert_ast_to_assembly(operator),convert_ast_to_assembly(src2),convert_ast_to_assembly(dst))
                     ]
         else:
-            raise ValueError("Not defined type of Ir code operator")
+            raise ValueError("Not defined type of Ir code operator",Ir_ast_node)
     if isinstance(Ir_ast_node,IR_code.Variable):
         return Pseudo(Ir_ast_node.identifier)
     if isinstance(Ir_ast_node,IR_code.Const):
@@ -72,10 +72,18 @@ def convert_ast_to_assembly(Ir_ast_node) -> Union[Program, Function]:
         return Ass_Sub()
     if isinstance(Ir_ast_node,IR_code.Multiply):
         return Ass_Mul()
+    if isinstance(Ir_ast_node,IR_code.Bit_Or):
+        return Ass_Bit_Or()
+    if isinstance(Ir_ast_node,IR_code.Bit_And):
+        return Ass_Bit_And()
+    if isinstance(Ir_ast_node,IR_code.Bit_Xor):
+        return Ass_Bit_Xor()
+    if isinstance(Ir_ast_node,IR_code.Left_Shift):
+        return Ass_Bit_Left_Shift()
+    if isinstance(Ir_ast_node,IR_code.Right_Shift):
+        return Ass_Bit_Right_Shift()
+    raise ValueError("Unknown AST node type",Ir_ast_node)
 
-
-
-    raise ValueError("Unknown AST node type")
 def second_pass_traverse(ass_obj):
     if isinstance(ass_obj,Ass_Ast.Program):
         second_pass_traverse(ass_obj.function_definition)
@@ -160,7 +168,9 @@ def third_pass_traverse(ass_obj,instructions = []):
                 ass_obj.right = Register("r11d")
                 cnt.col_counter += 1
                 instructions[cnt.row_counter].insert(cnt.col_counter+1,Mov(Register("r11d"),dst))
-
+        if isinstance(operator,Ass_Ast.Ass_Bit_And) or isinstance(operator,Ass_Bit_Or) or isinstance(operator,Ass_Bit_Xor):
+            if isinstance(left,Ass_Ast.Ass_Stack) and isinstance(right,Ass_Ast.Ass_Stack):
+                ass_obj.left = Register("r10d")
 
     if isinstance(ass_obj,Ass_Ast.Ass_Stack):
         return ass_obj

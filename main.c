@@ -1,1 +1,1 @@
-int main() { return 3*2/1-1;}
+int main() { return (2&3)^23|1;}

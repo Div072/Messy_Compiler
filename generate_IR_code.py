@@ -78,4 +78,14 @@ class parse_to_IR():
             return Multiply()
         elif operator.type == Tokentype.REMAINDER:
             return Remainder()
+        elif operator.type == Tokentype.BIT_AND:
+            return Bit_And()
+        elif operator.type == Tokentype.BIT_XOR:
+            return Bit_Xor()
+        elif operator.type ==  Tokentype.BIT_OR:
+            return Bit_Or()
+        elif operator.type == Tokentype.LEFT_SWIFT:
+            return Left_Shift()
+        elif operator.type == Tokentype.RIGHT_SWIFT:
+            return Right_Shift()
 

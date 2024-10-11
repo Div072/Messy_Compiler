@@ -1,7 +1,21 @@
 from unittest.mock import right
 
+from ass_traverser import second_pass_traverse
 from parser_ast_expr_stmt import*
 from Token import*
+"""Precedence Table (from highest to lowest)
+Parentheses: ()
+Unary Operators: +, -, ~ (bitwise NOT), ! (logical NOT)
+Multiplicative: *, /, %
+Additive: +, -
+Shift: <<, >>
+Relational: <, >, <=, >=
+Equality: ==, !=
+Bitwise AND: &
+Bitwise XOR: ^
+Bitwise OR: |
+Logical AND: &&
+Logical OR: ||"""
 class Parser:
     def __init__(self,tokens):
         self.curr = 0
@@ -55,7 +69,39 @@ class Parser:
             exit()
         return Fun_Declaration(name,statements)
     def expr(self):
-        return self.factor()
+        return self.bit_or()
+    def bit_or(self):
+        left = self.bit_xor()
+        while self.peek().type == Tokentype.BIT_OR:
+            self.advance()
+            operator = self.peek_previous()
+            right = self.bit_xor()
+            left = Binary(operator,left,right)
+        return left
+    def bit_xor(self):
+        left = self.bit_and()
+        while self.peek().type == Tokentype.BIT_XOR:
+            operator = self.peek()
+            self.advance() #comsume operator
+            right = self.bit_and()
+            left = Binary(operator, left, right)
+        return left
+    def bit_and(self):
+        left = self.bit_shift()
+        while self.peek().type == Tokentype.BIT_AND:
+            self.advance()
+            operator = self.peek_previous()
+            right = self.bit_shift()
+            left = Binary(operator, left, right)
+        return left
+    def bit_shift(self):
+        left = self.factor()
+        while self.peek().type == Tokentype.LEFT_SWIFT or self.peek().type == Tokentype.RIGHT_SWIFT:
+            operator = self.peek()
+            self.advance()
+            right = self.factor()
+            left = Binary(operator,left,right)
+        return left
     def factor(self):
         left = self.term()
         while self.peek().type == Tokentype.PLUS or self.peek().type == Tokentype.MINUS:
@@ -107,7 +153,7 @@ class Parser:
     def advance(self):
         if self.IsEnd():
             return False
-        self.curr +=1
+        self.curr = self.curr + 1
         return True
     def IsEnd(self):
         if self.curr>= len(self.tokens) or self.peek()==Tokentype.EOF:

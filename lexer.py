@@ -52,12 +52,20 @@ class Lexer:
                          self.advance()
                          self.tokens.append(Token.addToken(Tokentype.GREATER_EQUAL, "GREATER_EQUAL", self.line))
                          return
+                    elif self.peek() == '>':
+                         self.advance()
+                         self.tokens.append(Token.addToken(Tokentype.RIGHT_SWIFT,"right_swift",self.line))
+                         return
                     self.tokens.append(Token.addToken(Tokentype.GREATER, "GREATER", self.line))
                     return
                case '<':
                     if self.peek() == '=':
                          self.advance()
                          self.tokens.append(Token.addToken(Tokentype.LESS_EQUAL, "LESS_EQUAL", self.line))
+                         return
+                    elif self.peek() == '<':
+                         self.advance()
+                         self.tokens.append(Token.addToken(Tokentype.LEFT_SWIFT,"Left_swift",self.line))
                          return
                     self.tokens.append(Token.addToken(Tokentype.LESS, "LESS", self.line))
                     return
@@ -82,16 +90,20 @@ class Lexer:
                          self.tokens.append(Token.addToken(Tokentype.AND, "AND", self.line))
                          return
                     else:
-                         print("logical and syntax is &&: ", self.line)
-                         exit()
+                         self.tokens.append(Token.addToken(Tokentype.BIT_AND,"Bit_and",self.line))
+                         return
+
                case '|':
                     if self.peek() == '|':
                          self.advance()  # consume |
                          self.tokens.append(Token.addToken(Tokentype.OR, "OR", self.line))
                          return
                     else:
-                         print("logical or syntac is ||: ", self.line)
-                         exit()
+                         self.tokens.append(Token.addToken(Tokentype.BIT_OR, "Bit_or", self.line))
+                         return
+               case '^':
+                    self.tokens.append(Token.addToken(Tokentype.BIT_XOR,"bit_xor",self.line))
+                    return
                case '~':
                     self.tokens.append(Token.addToken(Tokentype.B_NOT,"~",self.line))
                     return
