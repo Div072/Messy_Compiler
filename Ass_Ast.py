@@ -42,6 +42,13 @@ class Mov(Instruction):
         self.dst = dst
     def __repr__(self):
         return f"Mov({self.src}, {self.dst})"
+class MovB(Instruction):
+    def __init__(self, src, dst):
+        self.src = src
+        self.dst = dst
+    def __repr__(self):
+        return f"Movb({self.src}, {self.dst})"
+
 
 class Ret():
     def __repr__(self):

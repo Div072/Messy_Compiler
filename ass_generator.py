@@ -10,7 +10,6 @@ class Ass_Generator:
         self.output+=text +"\n"
     def generate_ass(self,program:Program):
         self.visit_program(program)
-        print(self.output)
         with open("generated.s",'w') as file:
             file.write(self.output)
 
@@ -29,6 +28,8 @@ class Ass_Generator:
         for instruction in instructions:
             if isinstance(instruction,Mov):
                 self.visit_Mov(instruction)
+            elif isinstance(instruction,MovB):
+                self.visit_Movb(instruction)
             elif isinstance(instruction,Ret):
                 self.visit_ret(instruction)
             elif isinstance(instruction,Ass_Unary):
@@ -49,6 +50,10 @@ class Ass_Generator:
         src  = self.visit_operand(mov.src)
         dst  =  self.visit_operand(mov.dst)
         self.emit(f"    movl    {src}, {dst}")
+    def visit_Movb(self,mov:MovB):
+        src  = self.visit_operand(mov.src)
+        dst  =  self.visit_operand(mov.dst)
+        self.emit(f"    movb    {src}, {dst}")
     def visit_ret(self,ret:Ret):
         self.emit("     movq    %rbp, %rsp")
         self.emit("     popq    %rbp")
@@ -86,9 +91,9 @@ class Ass_Generator:
         if isinstance(operator,Ass_Bit_Xor):
             return "xorl"
         if isinstance(operator,Ass_Bit_Left_Shift):
-            return "shl"
+            return "shll"
         if isinstance(operator,Ass_Bit_Right_Shift):
-            return "sar"
+            return "sarl"
         else:
             raise ValueError("not recongnised binary_operator in ass_obj")
     def visit_operand(self,operand):
@@ -101,6 +106,8 @@ class Ass_Generator:
                 return "%r11d"
             if operand.name == "Dx":
                 return "%edx"
+            if operand.name == "cl":
+                return  "%cl"
         if isinstance(operand,Ass_Stack):
             return f"{operand.pointer}(%rbp)"
         if isinstance(operand,Imm):
