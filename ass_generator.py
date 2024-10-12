@@ -85,6 +85,10 @@ class Ass_Generator:
             return "orl"
         if isinstance(operator,Ass_Bit_Xor):
             return "xorl"
+        if isinstance(operator,Ass_Bit_Left_Shift):
+            return "shl"
+        if isinstance(operator,Ass_Bit_Right_Shift):
+            return "sar"
         else:
             raise ValueError("not recongnised binary_operator in ass_obj")
     def visit_operand(self,operand):

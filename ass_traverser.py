@@ -56,6 +56,11 @@ def convert_ast_to_assembly(Ir_ast_node):
             return [Mov(convert_ast_to_assembly(src1),convert_ast_to_assembly(dst)),
                     Ass_Binary(convert_ast_to_assembly(operator),convert_ast_to_assembly(src2),convert_ast_to_assembly(dst))
                     ]
+        elif isinstance(operator,IR_code.Right_Shift) or isinstance(operator,IR_code.Left_Shift):
+            return [
+                Mov(convert_ast_to_assembly(src1),Register("r10d")),
+                Ass_Binary(convert_ast_to_assembly(operator),Register('r10d'),convert_ast_to_assembly(src2))
+            ]
         else:
             raise ValueError("Not defined type of Ir code operator",operator)
     if isinstance(Ir_ast_node,IR_code.Variable):
