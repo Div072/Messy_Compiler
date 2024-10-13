@@ -31,10 +31,17 @@ def convert_ast_to_assembly(Ir_ast_node):
             Ret()
         ]
     if isinstance(Ir_ast_node,IR_code.U_nary):
-        return[
+        if isinstance(Ir_ast_node.operator,IR_code.Not):
+            return[
+                Cmp(Imm(0),convert_ast_to_assembly(Ir_ast_node.src)),
+                Mov(Imm(0),convert_ast_to_assembly(Ir_ast_node.ds)),
+                SetCC("E",convert_ast_to_assembly(Ir_ast_node.ds))
+            ]
+        else:
+            return[
             Mov(convert_ast_to_assembly(Ir_ast_node.src),convert_ast_to_assembly(Ir_ast_node.ds)),
             Ass_Unary(convert_ast_to_assembly(Ir_ast_node.operator),convert_ast_to_assembly(Ir_ast_node.ds))
-        ]
+            ]
     if isinstance(Ir_ast_node,IR_code.B_inary):
         operator = Ir_ast_node.operator
         src1 = Ir_ast_node.src1
@@ -60,8 +67,30 @@ def convert_ast_to_assembly(Ir_ast_node):
             return [Mov(convert_ast_to_assembly(src1),convert_ast_to_assembly(dst)),
                     Ass_Binary(convert_ast_to_assembly(operator),convert_ast_to_assembly(src2),convert_ast_to_assembly(dst))
             ]
+        elif isinstance(operator,IR_code.Less) or isinstance(operator,IR_code.LessEqual) or isinstance(operator,IR_code.Greater) or isinstance(operator,IR_code.GreaterEqual) or isinstance(operator,IR_code.Equal_Equal) or isinstance(operator,IR_code.Not_Equal):
+            return[
+                Cmp(convert_ast_to_assembly(src2),convert_ast_to_assembly(src1)),
+                Mov(Imm(0),convert_ast_to_assembly(dst)),
+                SetCC(get_relational_op(operator),convert_ast_to_assembly(dst))
+            ]
         else:
             raise ValueError("Not defined type of Ir code operator",operator)
+    if isinstance(Ir_ast_node,IR_code.Jump):
+        return Jmp(Ir_ast_node.target)
+    if isinstance(Ir_ast_node,IR_code.JumpIfZero):
+        return [
+            Cmp(Imm(0),convert_ast_to_assembly(Ir_ast_node.condition)),
+            JmpCC("E",Ir_ast_node.identifier)
+        ]
+    if isinstance(Ir_ast_node,IR_code.JumpIfNotZero):
+        return [
+            Cmp(Imm(0),convert_ast_to_assembly(Ir_ast_node.condition)),
+            JmpCC("NE",Ir_ast_node.identifier)
+        ]
+    if isinstance(Ir_ast_node,IR_code.Copy):
+        return Mov(convert_ast_to_assembly(Ir_ast_node.src),convert_ast_to_assembly(Ir_ast_node.dst))
+    if isinstance(Ir_ast_node,IR_code.Label):
+        return Label(Ir_ast_node.identifier)
     if isinstance(Ir_ast_node,IR_code.Variable):
         return Pseudo(Ir_ast_node.identifier)
     if isinstance(Ir_ast_node,IR_code.Const):
@@ -89,13 +118,16 @@ def convert_ast_to_assembly(Ir_ast_node):
     raise ValueError("Unknown AST node type",Ir_ast_node)
 
 def second_pass_traverse(ass_obj):
+    if isinstance(ass_obj,list):
+        for instruction in ass_obj:
+            second_pass_traverse(instruction)
+
     if isinstance(ass_obj,Ass_Ast.Program):
         second_pass_traverse(ass_obj.function_definition)
         return
     if isinstance(ass_obj,Ass_Ast.Function):
         for instruction in ass_obj.instructions:
-            for inter in instruction:
-                second_pass_traverse(inter)
+            second_pass_traverse(instruction)
         return
     if isinstance(ass_obj,Ass_Ast.Ass_Unary):
         ds = ass_obj.operand
@@ -115,6 +147,13 @@ def second_pass_traverse(ass_obj):
         stack.pointer = stack.pointer - 4
         initiate_pointer(ass_obj.identifier,stack.pointer)
         return Ass_Stack(stack_map[ass_obj.identifier])
+    if isinstance(ass_obj,Ass_Ast.Cmp):
+        ass_obj.val1 = second_pass_traverse(ass_obj.val1)
+        ass_obj.val2 = second_pass_traverse(ass_obj.val2)
+        return
+    if isinstance(ass_obj,Ass_Ast.SetCC):
+        ass_obj.operand = second_pass_traverse(ass_obj.operand)
+        return
     if isinstance(ass_obj,Ass_Ast.Imm):
         return ass_obj
     if isinstance(ass_obj,Ass_Ast.Register):
@@ -133,16 +172,15 @@ def third_pass_traverse(ass_obj,instructions = []):
         third_pass_traverse(ass_obj.function_definition)
     if isinstance(ass_obj,Ass_Ast.Function):
         cnt.row_counter = 0
-
         for instruction in ass_obj.instructions:
-
             cnt.col_counter = 0
-            for inter in instruction:
-                third_pass_traverse(inter,ass_obj.instructions)
-                cnt.col_counter += 1
+            third_pass_traverse(instruction,ass_obj.instructions)
             cnt.row_counter += 1
-        ass_obj.instructions[0].insert(0, AlocateStack(get_max_stack_pointer()))
-
+        ass_obj.instructions.insert(0, AlocateStack(get_max_stack_pointer()))
+    if isinstance(ass_obj,list):
+        for instruct in ass_obj:
+            third_pass_traverse(instruct,instructions)
+            cnt.col_counter += 1
     if isinstance(ass_obj,Ass_Ast.Ret):
         return
     if isinstance(ass_obj,Ass_Ast.Ass_Unary):
@@ -158,11 +196,24 @@ def third_pass_traverse(ass_obj,instructions = []):
         if isinstance(ass_obj.operand,Ass_Ast.Imm):
             instructions[cnt.row_counter].insert(cnt.col_counter,Mov(ass_obj.operand,Register("r10d")))
             ass_obj.operand = Register("r10d")
+    if isinstance(ass_obj,Ass_Ast.Cmp):
+        if isinstance(ass_obj.val1,Ass_Ast.Ass_Stack) and isinstance(ass_obj.val2,Ass_Ast.Ass_Stack):
+            val1 = ass_obj.val1
+            ass_obj.val1 = Register("r10d")
+            instructions[cnt.row_counter].insert(cnt.col_counter,Mov(val1,Register("r10d")))
+        if isinstance(ass_obj.val2,Ass_Ast.Imm):
+            val2 = ass_obj.val2
+            ass_obj.val2 = Register("r11d")
+            instructions[cnt.row_counter].insert(cnt.col_counter,Mov(val2,Register("r11d")))
     if isinstance(ass_obj,Ass_Ast.Ass_Binary):
         left = third_pass_traverse(ass_obj.left,instructions)
         right = third_pass_traverse(ass_obj.right,instructions)
         dst = right
         operator = ass_obj.binary_operator
+        if isinstance(operator,Ass_Ast.Ass_Add) or isinstance(operator,Ass_Ast.Ass_Neg) or isinstance(operator,Ass_Ast.Ass_Mul):
+            if isinstance(right,Ass_Ast.Imm):
+                ass_obj.right = Register("r11d")
+                instructions[cnt.row_counter].insert(cnt.col_counter,Mov(right,Register("r11d")))
         if isinstance(operator,Ass_Ast.Ass_Add) or isinstance(operator,Ass_Ast.Ass_Neg):
             if isinstance(left, Ass_Ast.Ass_Stack) and isinstance(right, Ass_Ast.Ass_Stack):
                 instructions[cnt.row_counter].insert(cnt.col_counter,Mov(left,Register("r10d")))
@@ -181,7 +232,6 @@ def third_pass_traverse(ass_obj,instructions = []):
             if isinstance(left,Ass_Ast.Ass_Stack) and isinstance(right,Ass_Ast.Ass_Stack):
                 instructions[cnt.row_counter].insert(cnt.col_counter,Mov(left,Register("r10d")))
                 ass_obj.left = Register("r10d")
-
     if isinstance(ass_obj,Ass_Ast.Ass_Stack):
         return ass_obj
     if isinstance(ass_obj, Ass_Ast.Ass_Add):
@@ -198,3 +248,20 @@ def get_max_stack_pointer():
         if val <= ma:
             ma =val
     return abs(ma)
+def get_relational_op(operator):
+    if isinstance(operator,IR_code.Not_Equal):
+        return "NE"
+    if isinstance(operator,IR_code.LessEqual):
+        return "LE"
+    if isinstance(operator,IR_code.Greater):
+        return "G"
+    if isinstance(operator,IR_code.GreaterEqual):
+        return "GE"
+    if isinstance(operator,IR_code.Less):
+        return "L"
+    if isinstance(operator,IR_code.LessEqual):
+        return "LE"
+    if isinstance(operator,IR_code.Equal_Equal):
+        return "E"
+    else:
+        raise ValueError("Not valid relational operator",operator)

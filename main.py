@@ -9,6 +9,7 @@ def runFile(file_path):
         source = file.read()
         lexer = Lexer(source)
         lexer.scan()
+
         parser = Parser(lexer.tokens)
         obj = parser.parse()
         ir_code = parse_to_IR()

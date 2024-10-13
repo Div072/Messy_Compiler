@@ -21,8 +21,7 @@ class Parser:
         return self.program()
 
     def program(self):
-        fun_declar = self.stmt()
-        return ProgramStmt(self.body)
+        return ProgramStmt(self.body())
 
     def body(self):
         if self.peek().type == Tokentype.INT:
@@ -46,9 +45,9 @@ class Parser:
             self.advance()#consume)
             if self.peek().type == Tokentype.OPENPARA:
                 self.advance() #consume {
-                while self.peek().type != Tokentype.SEMICOLON and not self.IsEnd():
+                while self.peek().type != Tokentype.CLOSEPARA and not self.IsEnd():
                     statements.append(self.stmt())
-                self.advance() #consume ;
+
                 if self.peek().type != Tokentype.CLOSEPARA:
                     print("Missing } in function declaration")
                     exit()
@@ -62,11 +61,18 @@ class Parser:
             exit()
         return Fun_Declaration(name,statements)
     def stmt(self):
+
         if self.peek().type == Tokentype.RETURN:
             self.advance() #consume return
             val = self.expr()
+
+            if self.peek().type != Tokentype.SEMICOLON:
+                print("Missing semicolon in statement")
+                exit()
+            self.advance() #consume ;
             return Return(val)
     def expr(self):
+
         expr = self.logical_or()
         return expr
     def logical_or(self):

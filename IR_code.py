@@ -27,7 +27,9 @@ class Operator:
 class Complement(Operator):
     def __repr__(self):
         return "Ircode Complement"
-
+class Not(Operator):
+    def __repr__(self):
+        return "Not"
 class Negete(Operator):
     def __repr__(self):
         return "Ircode Negate"
@@ -114,3 +116,32 @@ class B_inary():
     def __repr__(self):
         return "B_inary"
 
+class Copy():
+    def __init__(self,src:Val,dst:Val):
+        self.src = src
+        self.dst = dst
+    def __repr__(self):
+        return "Copy()"
+
+class Jump():
+    def __init__(self,target):
+        self.target = target
+    def __repr__(self):
+        return"Jump"
+class JumpIfZero():
+    def __init__(self,condition,identifier):
+        self.condition = condition
+        self.identifier = identifier
+    def __repr__(self):
+        return"JumpIfZero"
+class JumpIfNotZero():
+    def __init__(self,condition,identifier):
+        self.condition = condition
+        self.identifier = identifier
+    def __repr__(self):
+        return "Jumpifnotzero"
+class Label():
+    def __init__(self,identifier):
+        self.identifier = identifier
+    def __repr__(self):
+        return "Label"

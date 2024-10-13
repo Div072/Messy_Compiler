@@ -1,1 +1,1 @@
-int main() { return 166>>((1&4)<<1);}
+int main() { return 0||0;}

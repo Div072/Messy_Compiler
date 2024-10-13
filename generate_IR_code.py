@@ -6,7 +6,8 @@ from parser_ast_expr_stmt import*
 class parse_to_IR():
     def __init__(self):
         self.identifer_val = 0
-        self.EXPR_instructions = []
+        self.global_identifier = 0
+
     def traverse(self,obj,instruction=[]):
 
         if isinstance(obj,Literal):
@@ -21,11 +22,7 @@ class parse_to_IR():
             return self.visitFunStmt(obj)
         elif isinstance(obj,Return):
             return self.visitRetstmt(obj,instruction)
-        elif isinstance(obj,Token):
-            if obj.type == Tokentype.B_NOT:
-                return self.visitComplementOperator()
-            elif obj.type == Tokentype.MINUS:
-                return self.visitNegOperator()
+
     def visitprogramStmt(self,stmt:ProgramStmt):
         declaration = self.traverse(stmt.fun_declaration)
         return Program(declaration)
@@ -45,17 +42,42 @@ class parse_to_IR():
         src = self.traverse(expr.expr,instructions)
         identifier_name = self.make_identifer()
         dst = Variable(identifier_name)
-        op = self.traverse(expr.operator)
+        op = self.convert_to_op(expr.operator)
         instructions.append(U_nary(op,src,dst))
         return dst
     def visitBinaryExpr(self,operator:Token,left:Expr,right:Expr,instructions):
-        v1 = self.traverse(left,instructions)
-        v2 = self.traverse(right,instructions)
-        dst_name = self.make_identifer()
-        dst = Variable(dst_name)
-        op = self.convert_to_op(operator)
-        instructions.append(B_inary(op,v1,v2,dst))
-        return dst
+        if operator.type ==Tokentype.OR or operator.type == Tokentype.AND:
+            v1 = self.traverse(left,instructions)
+            v2 = self.traverse(right,instructions)
+            false_label = self.make_global_identifer()
+            end_label = self.make_global_identifer()
+            dst_name = self.make_identifer()
+            dst = Variable(dst_name)
+            if operator.type == Tokentype.AND:
+                instructions.append(JumpIfZero(v1,false_label))
+                instructions.append(JumpIfZero(v2,false_label))
+                instructions.append(Copy(Const(1),dst))
+                instructions.append(Jump(end_label))
+                instructions.append(Label(false_label))
+                instructions.append(Copy(Const(0),dst))
+                instructions.append(Label(end_label))
+            else:
+                instructions.append(JumpIfNotZero(v1,false_label))
+                instructions.append(JumpIfNotZero(v2,false_label))
+                instructions.append(Copy(Const(0),dst))
+                instructions.append(Jump(end_label))
+                instructions.append(Label(false_label))
+                instructions.append(Copy(Const(1),dst))
+                instructions.append(Label(end_label))
+            return dst
+        else:
+            v1 = self.traverse(left,instructions)
+            v2 = self.traverse(right,instructions)
+            dst_name = self.make_identifer()
+            dst = Variable(dst_name)
+            op = self.convert_to_op(operator)
+            instructions.append(B_inary(op,v1,v2,dst))
+            return dst
     def visitConstantExpr(self,expr:Literal):
         return Const(expr.value)
     def visitComplementOperator(self):
@@ -100,3 +122,9 @@ class parse_to_IR():
             return Equal_Equal()
         elif operator.type == Tokentype.BANG_EQUAL:
             return Not_Equal()
+        elif operator.type == Tokentype.BANG:
+            return Not()
+
+    def make_global_identifer(self):
+        self.global_identifier +=1
+        return f"global{self.global_identifier}"

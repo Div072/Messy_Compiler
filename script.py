@@ -22,7 +22,6 @@ print(f"Return value of gcc (exit code): {return_code2}")
 # Step 5: Clean up: remove a.out and generated.s
 print("Cleaning up files...")
 os.remove('a.out')
-os.remove('generated.s')
 os.remove('b.out')
-
+os.remove('generated.s')
 print("Process complete!")
