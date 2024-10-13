@@ -22,9 +22,9 @@ class Parser:
 
     def program(self):
         fun_declar = self.stmt()
-        return ProgramStmt(fun_declar)
+        return ProgramStmt(self.body)
 
-    def stmt(self):
+    def body(self):
         if self.peek().type == Tokentype.INT:
             self.advance() #consume int
             if self.peek().type == Tokentype.INDENT:
@@ -38,10 +38,7 @@ class Parser:
                 print("Error from parser: not a variable declaration or function dec")
                 print("correct usage TYPE - IDENTIFIER ")
                 exit()
-        elif self.peek().type == Tokentype.RETURN:
-            self.advance() #consume return
-            val = self.expr()
-            return Return(val)
+
     def fun_declaration(self,token:Token):
         name = token.lexeme
         statements = []
@@ -64,8 +61,14 @@ class Parser:
             print("Missing ) in function declaration ")
             exit()
         return Fun_Declaration(name,statements)
+    def stmt(self):
+        if self.peek().type == Tokentype.RETURN:
+            self.advance() #consume return
+            val = self.expr()
+            return Return(val)
     def expr(self):
-        return self.logical_or()
+        expr = self.logical_or()
+        return expr
     def logical_or(self):
         left = self.logical_and()
         while self.peek().type == Tokentype.OR:
