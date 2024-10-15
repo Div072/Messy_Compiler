@@ -72,6 +72,8 @@ class Parser:
             return Return(val)
         elif self.peek().type == Tokentype.INT: #add more datatypes in future
             return self.Declaration()
+        elif self.peek().type == Tokentype.IF:
+            return self.if_else()
         elif self.peek().type == Tokentype.SEMICOLON:
             return NULL()
         else:
@@ -79,9 +81,51 @@ class Parser:
             self.check_semicolon()
             return Expression(expr)
 
+    def if_else(self):
+        self.advance() #consume if
+        if self.peek().type == Tokentype.OPENBRA:
+            self.advance() #consume (
+            expr = self.expr()
+            if_statements = []
+            el_statements = []
+            if self.peek().type == Tokentype.CLOSEBRA:
+                self.advance() # consume )
+            else:
+                raise ValueError("missing ) in if-else")
+            if self.peek().type == Tokentype.OPENPARA:
+                self.advance() # consume {
+
+                while self.peek().type != Tokentype.CLOSEPARA and self.peek().type != Tokentype.EOF:
+                    if_statements.append(self.stmt())
+                if self.peek().type == Tokentype.CLOSEPARA:
+                    self.advance() #consume }
+                else:
+                    raise ValueError("Missing } in if statement")
+            else:
+                if_statements.append(self.stmt())
+
+            if self.peek().type == Tokentype.ELSE:
+                self.advance() #consume else
+                if self.peek().type == Tokentype.OPENPARA:
+                    self.advance() #consume {
+                    while self.peek().type != Tokentype.CLOSEPARA and self.peek().type != Tokentype.EOF:
+                        el_statements.append(self.stmt())
+                    if self.peek().type == Tokentype.CLOSEPARA:
+                        self.advance() #consume }
+                    else:
+                        raise ValueError("Missing } in else statement")
+                    return If_Else(expr,if_statements,el_statements)
+                else:
+                    el_statements.append(self.stmt())
+                    return If_Else(expr,if_statements,el_statements)
+            else:
+                return If_Else(expr,if_statements)
+
+
+        else:
+            raise ValueError("missing ( in if-else")
 
     def Declaration(self):
-        token = self.peek()
         self.advance() #consume type
         if self.peek().type == Tokentype.INDENT:
             name = self.primary()
@@ -99,8 +143,21 @@ class Parser:
     def expr(self):
         expr = self.assignment()
         return expr
+    def ternary(self):
+        condition = self.logical_or()
+        if self.peek().type == Tokentype.QUESTION:
+            self.advance() #consume ?
+            then_part = self.expr()
+            if self.peek().type == Tokentype.COLON:
+                self.advance() #consume :
+                else_part = self.expr()
+                return Ternary(condition,then_part,else_part)
+            else:
+                raise ValueError("missing : in ternary operation")
+        return condition
+
     def assignment(self):
-        left = self.logical_or()
+        left = self.ternary()
         while self.peek().type == Tokentype.EQUAL:
             self.advance() #consume  =
             right = self.assignment()

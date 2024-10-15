@@ -2,6 +2,8 @@ from enum import Enum, auto
 
 class Tokentype(Enum):
     SEMICOLON = auto()
+    QUESTION  = auto()
+    COLON = auto()
     COMA = auto()
     NUMBER = auto()
     PRINT = auto()

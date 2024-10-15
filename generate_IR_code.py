@@ -1,4 +1,5 @@
 from IR_code import*
+from Resolution import make_unique_name
 from Token import Tokentype
 from parser_ast_expr_stmt import*
 # should I use visitor pattern of simple match instance??
@@ -9,8 +10,10 @@ class parse_to_IR():
         self.global_identifier = 0
 
     def traverse(self,obj,instruction=[]):
-
-        if isinstance(obj,Literal):
+        if isinstance(obj,list):
+            for statement in obj:
+                self.traverse(statement,instruction)
+        elif isinstance(obj,Literal):
             return self.visitConstantExpr(obj)
         elif isinstance(obj,Expression):
             return self.visitExpression(obj,instruction)
@@ -30,6 +33,8 @@ class parse_to_IR():
             return self.visitAssignment(obj,instruction)
         elif isinstance(obj,Declaration):
             return self.visitDeclaration(obj,instruction)
+        elif isinstance(obj,If_Else):
+            return self.visitIfElseStmt(obj,instruction)
 
 
 
@@ -45,6 +50,17 @@ class parse_to_IR():
             if instrct:
                 inst.append(instrct)
         return Fun_ction(stmt.name, inst)
+    def visitIfElseStmt(self,if_else:If_Else,instructions):
+        condition = self.traverse(if_else.conditional,instructions)
+        else_label = self.make_global_identifer()
+        end_label = self.make_global_identifer()
+        instructions.append(JumpIfZero(condition,else_label))
+        self.traverse(if_else.If_staments,instructions)
+        instructions.append(Jump(end_label))
+        instructions.append(Label(else_label))
+        self.traverse(if_else.El_staments,instructions)
+        instructions.append(Label(end_label))
+
     def visitRetstmt(self,stmt:Return,instructions):
         val = self.traverse(stmt.expression,instructions)
         instructions.append(Ret(val))
@@ -52,9 +68,10 @@ class parse_to_IR():
         if obj.expr is not None:
             return self.visitAssignment(Assignment(obj.name,obj.expr),instructions)
         return
+
     def visitExpression(self,Ex:Expression,instructions):
         expr = self.traverse(Ex.expr,instructions)
-        return Copy(expr,Variable(self.make_identifer()))
+
     def visitUnaryExpr(self,expr:Unary,instructions):
         src = self.traverse(expr.expr,instructions)
         identifier_name = self.make_identifer()

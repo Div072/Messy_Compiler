@@ -4,7 +4,9 @@ from parser_ast_expr_stmt import*
 # To implement typedef for compiler we need to move this Resolution pass into parser and analyse and resolute variables as we parse the program.
 class resolution():
     def traverse_syntax_analysis(self,obj):
-
+        if isinstance(obj,list):
+            for statement in obj:
+                self.traverse_syntax_analysis(statement)
         if isinstance(obj,IDENTIFIER):
             obj.name = self.resolve_expr(obj).name
         elif isinstance(obj,Expression):
@@ -29,16 +31,28 @@ class resolution():
                 raise ValueError("left side of assignment should be variable (IDENTIFIER) but got",obj.left)
         elif isinstance(obj,NULL):
             return obj
+        elif isinstance(obj,If_Else):
+            self.visitIfElseStmt(obj)
+        elif isinstance(obj,Ternary):
+            self.visitTernary(obj)
     def visitprogramStmt(self,stmt:ProgramStmt):
         self.traverse_syntax_analysis(stmt.fun_declaration)
         return
     def visitFunStmt(self,stmt:Fun_Declaration):
         for statment in stmt.block_items:
             self.traverse_syntax_analysis(statment)
-        return
+
+    def visitIfElseStmt(self,if_else:If_Else):
+        self.traverse_syntax_analysis(if_else.conditional)
+        self.traverse_syntax_analysis(if_else.If_staments)
+        self.traverse_syntax_analysis(if_else.El_staments)
     def visitReturnStmt(self,ret:Return):
 
         self.traverse_syntax_analysis(ret.expression)
+    def visitTernary(self,ternary:Ternary):
+        self.traverse_syntax_analysis(ternary.condition)
+        self.traverse_syntax_analysis(ternary.then_part)
+        self.traverse_syntax_analysis(ternary.else_part)
     def visitUnaryExpr(self,unary):
         self.traverse_syntax_analysis(unary.expr)
     def visitBinaryExpr(self,binary):

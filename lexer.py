@@ -7,7 +7,7 @@ class Lexer:
           self.curr = 0
           self.line = 1
           self.tokens = []
-          self.keywords ={"return":Tokentype.RETURN,"int":Tokentype.INT,"void":Tokentype.VOID}
+          self.keywords ={"return":Tokentype.RETURN,"int":Tokentype.INT,"void":Tokentype.VOID,"if":Tokentype.IF,"else":Tokentype.ELSE}
 
      def scan(self):
           while not self.Isend():
@@ -106,6 +106,12 @@ class Lexer:
                     return
                case '~':
                     self.tokens.append(Token.addToken(Tokentype.B_NOT,"~",self.line))
+                    return
+               case '?':
+                    self.tokens.append(Token.addToken(Tokentype.QUESTION,"?",self.line))
+                    return
+               case ':':
+                    self.tokens.append(Token.addToken(Tokentype.COLON,":",self.line))
                     return
                case '\n':
                     self.line += 1

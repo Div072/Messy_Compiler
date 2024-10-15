@@ -26,7 +26,12 @@ class Visitor(ABC):
     @abstractmethod
     def VisitDeclarationStmt(self,stmt:Declaration)->None:
         pass
-
+    @abstractmethod
+    def visitIfElseStmt(self,stmt:If_Else)->None:
+        pass
+    @abstractmethod
+    def visitTerneryExpr(self,expr:Ternary)->None:
+        pass
 
 class Expr(ABC):
     def accept(self,visitor:Visitor)->None:
@@ -55,6 +60,14 @@ class Binary(Expr):
         self.right = right
     def accept(self,visitor:Visitor):
         return visitor.visitBinaryExpr(self)
+class Ternary(Expr):
+    def __init__(self,condition,then_part,else_part):
+        self.condition = condition
+        self.then_part = then_part
+        self.else_part = else_part
+    def accept(self,visitor:Visitor):
+        return visitor.visitTerneryExpr(self)
+
 class NULL(Expr):
     pass
 class Expression():
@@ -93,3 +106,10 @@ class Declaration(Stmt):
         self.expr = expr
     def accept(self,visitor:Visitor):
         return visitor.VisitDeclarationStmt(self)
+class If_Else(Stmt):
+    def __init__(self,conditional:Expr,If_staments,El_statement=None):
+        self.conditional = conditional
+        self.If_staments = If_staments
+        self.El_staments = El_statement
+    def accept(self,visitor:Visitor):
+        return visitor.visitIfElseStmt(self)

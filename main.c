@@ -1,5 +1,10 @@
 int main() {
-int a = 1<<2*3;
-int b = a;
-return b;
+    int a;
+    int b = 10;
+    if (b>=2){
+     a = 5;
+    }else{
+        a = 10;
+    }
+    return a;
 }
