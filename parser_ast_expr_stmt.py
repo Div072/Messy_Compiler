@@ -18,9 +18,14 @@ class Visitor(ABC):
     def visitRetrunStmt(self,stmt:Return)->None:
         pass
     @abstractmethod
-    def visitProgramStmt(self,stmt)->None:
+    def visitProgramStmt(self,stmt:ProgramStmt)->None:
         pass
-
+    @abstractmethod
+    def visitAssignmentStmt(self,stmt:Assignment)->None:
+        pass
+    @abstractmethod
+    def VisitDeclarationStmt(self,stmt:Declaration)->None:
+        pass
 
 
 class Expr(ABC):
@@ -39,6 +44,10 @@ class Literal(Expr):
         self.type = type
     def accept(self,visitor:Visitor):
         return visitor.visitLiteralExpr(self)
+class IDENTIFIER():
+    def __init__(self,name):
+        self.name = name
+
 class Binary(Expr):
     def __init__(self,binary_op,left, right):
         self.binary_op = binary_op
@@ -46,6 +55,11 @@ class Binary(Expr):
         self.right = right
     def accept(self,visitor:Visitor):
         return visitor.visitBinaryExpr(self)
+class NULL(Expr):
+    pass
+class Expression():
+    def __init__(self,expr:Expr):
+        self.expr = expr
 
 class Stmt(ABC):
     def accept(self,visitor:Visitor)->None:
@@ -57,9 +71,9 @@ class ProgramStmt(Stmt):
     def accept(self,visitor:Visitor):
         return visitor.visitProgramStmt(self)
 class Fun_Declaration(Stmt):
-    def __init__(self,name,statements:[]):
+    def __init__(self,name,block_items:[]):
         self.name = name
-        self.statements = statements
+        self.block_items = block_items
     def accept(self,visitor:Visitor):
         return visitor.visitFun_DeclarationStmt(self)
 class Return(Stmt):
@@ -67,4 +81,15 @@ class Return(Stmt):
         self.expression = expr
     def accept(self,visitor:Visitor):
         return visitor.visitRetrunStmt(self)
-
+class Assignment(Stmt):
+    def __init__(self,left,right):
+        self.left = left
+        self.right = right
+    def accept(self,visitor:Visitor):
+        return visitor.visitAssignmentStmt(self)
+class Declaration(Stmt):
+    def __init__(self,name,expr:Expr=None):
+        self.name = name
+        self.expr = expr
+    def accept(self,visitor:Visitor):
+        return visitor.VisitDeclarationStmt(self)

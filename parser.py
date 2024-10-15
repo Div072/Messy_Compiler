@@ -1,3 +1,5 @@
+from unittest.mock import right
+
 from parser_ast_expr_stmt import*
 from Token import*
 """Precedence Table (from highest to lowest)
@@ -12,7 +14,9 @@ Bitwise AND: &
 Bitwise XOR: ^
 Bitwise OR: |
 Logical AND: &&
-Logical OR: ||"""
+Logical OR: ||
+Assignment (=) 
+"""
 class Parser:
     def __init__(self,tokens):
         self.curr = 0
@@ -32,13 +36,13 @@ class Parser:
                 if self.peek().type == Tokentype.OPENBRA:
 
                     self.advance()#consume (
-                    return  self.fun_declaration(name)
+                    return  self.main_fun_declaration(name)
             else:
                 print("Error from parser: not a variable declaration or function dec")
                 print("correct usage TYPE - IDENTIFIER ")
                 exit()
 
-    def fun_declaration(self,token:Token):
+    def main_fun_declaration(self,token:Token):
         name = token.lexeme
         statements = []
         if self.peek().type == Tokentype.CLOSEBRA:
@@ -61,20 +65,47 @@ class Parser:
             exit()
         return Fun_Declaration(name,statements)
     def stmt(self):
-
         if self.peek().type == Tokentype.RETURN:
             self.advance() #consume return
             val = self.expr()
-
-            if self.peek().type != Tokentype.SEMICOLON:
-                print("Missing semicolon in statement")
-                exit()
-            self.advance() #consume ;
+            self.check_semicolon()
             return Return(val)
-    def expr(self):
+        elif self.peek().type == Tokentype.INT: #add more datatypes in future
+            return self.Declaration()
+        elif self.peek().type == Tokentype.SEMICOLON:
+            return NULL()
+        else:
+            expr = self.expr()
+            self.check_semicolon()
+            return Expression(expr)
 
-        expr = self.logical_or()
+
+    def Declaration(self):
+        token = self.peek()
+        self.advance() #consume type
+        if self.peek().type == Tokentype.INDENT:
+            name = self.primary()
+            if self.peek().type == Tokentype.EQUAL:
+                self.advance() # consume =
+                expr = self.expr()
+                self.check_semicolon()
+                return Declaration(name,expr)
+            else:
+                self.check_semicolon()
+                return Declaration(name)
+        else:
+            print("No INDENT type in Declaration")
+            exit()
+    def expr(self):
+        expr = self.assignment()
         return expr
+    def assignment(self):
+        left = self.logical_or()
+        while self.peek().type == Tokentype.EQUAL:
+            self.advance() #consume  =
+            right = self.assignment()
+            left = Assignment(left,right)
+        return left
     def logical_or(self):
         left = self.logical_and()
         while self.peek().type == Tokentype.OR:
@@ -173,6 +204,9 @@ class Parser:
         if token.type == Tokentype.STRING:
             self.advance()
             return Literal(token.lexeme,Tokentype.STRING)
+        if token.type == Tokentype.INDENT:
+            self.advance()
+            return IDENTIFIER(token.lexeme)
         if token.type == Tokentype.OPENBRA:
             self.advance() #consume (
             expr = self.expr() #change it future
@@ -210,3 +244,8 @@ class Parser:
         else:
             self.advance()
             return self.peek_previous()
+    def check_semicolon(self):
+        if self.peek().type != Tokentype.SEMICOLON:
+            print("Missing semicolon in statement")
+            exit()
+        self.advance() #consume ;

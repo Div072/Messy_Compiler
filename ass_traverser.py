@@ -39,8 +39,8 @@ def convert_ast_to_assembly(Ir_ast_node):
             ]
         else:
             return[
-            Mov(convert_ast_to_assembly(Ir_ast_node.src),convert_ast_to_assembly(Ir_ast_node.ds)),
-            Ass_Unary(convert_ast_to_assembly(Ir_ast_node.operator),convert_ast_to_assembly(Ir_ast_node.ds))
+                Mov(convert_ast_to_assembly(Ir_ast_node.src),convert_ast_to_assembly(Ir_ast_node.ds)),
+                Ass_Unary(convert_ast_to_assembly(Ir_ast_node.operator),convert_ast_to_assembly(Ir_ast_node.ds))
             ]
     if isinstance(Ir_ast_node,IR_code.B_inary):
         operator = Ir_ast_node.operator
@@ -55,10 +55,10 @@ def convert_ast_to_assembly(Ir_ast_node):
                     ]
         elif isinstance(operator,IR_code.Remainder):
             return[Mov(convert_ast_to_assembly(src1),Register("Ax")),
-                    Ass_Cdq(),
-                    Ass_Idiv(convert_ast_to_assembly(src2)),
-                    Mov(Register("Dx"),convert_ast_to_assembly(dst))
-                    ]
+                   Ass_Cdq(),
+                   Ass_Idiv(convert_ast_to_assembly(src2)),
+                   Mov(Register("Dx"),convert_ast_to_assembly(dst))
+                   ]
         elif isinstance(operator,IR_code.Multiply) or isinstance(operator,IR_code.Add) or isinstance(operator,IR_code.Negete) or isinstance(operator,IR_code.Bit_Or) or isinstance(operator,IR_code.Bit_And) or isinstance(operator,IR_code.Bit_Xor):
             return [Mov(convert_ast_to_assembly(src1),convert_ast_to_assembly(dst)),
                     Ass_Binary(convert_ast_to_assembly(operator),convert_ast_to_assembly(src2),convert_ast_to_assembly(dst))
@@ -66,7 +66,7 @@ def convert_ast_to_assembly(Ir_ast_node):
         elif isinstance(operator,IR_code.Right_Shift) or isinstance(operator,IR_code.Left_Shift):
             return [Mov(convert_ast_to_assembly(src1),convert_ast_to_assembly(dst)),
                     Ass_Binary(convert_ast_to_assembly(operator),convert_ast_to_assembly(src2),convert_ast_to_assembly(dst))
-            ]
+                    ]
         elif isinstance(operator,IR_code.Less) or isinstance(operator,IR_code.LessEqual) or isinstance(operator,IR_code.Greater) or isinstance(operator,IR_code.GreaterEqual) or isinstance(operator,IR_code.Equal_Equal) or isinstance(operator,IR_code.Not_Equal):
             return[
                 Cmp(convert_ast_to_assembly(src2),convert_ast_to_assembly(src1)),
@@ -191,7 +191,11 @@ def third_pass_traverse(ass_obj,instructions = []):
         dst = third_pass_traverse(ass_obj.dst,instructions)
         if isinstance(src,Ass_Ast.Ass_Stack) and isinstance(dst,Ass_Ast.Ass_Stack):
             ass_obj.dst = Register("r10d")
-            instructions[cnt.row_counter].insert(cnt.col_counter+1,Mov(Register("r10d"),dst))
+            if isinstance(instructions[cnt.row_counter],list):
+                instructions[cnt.row_counter].insert(cnt.col_counter+1,Mov(Register("r10d"),dst))
+            else:
+                tempinstruction = [instructions[cnt.row_counter],Mov(Register("r10d"),dst)]
+                instructions[cnt.row_counter] = tempinstruction
     if isinstance(ass_obj,Ass_Idiv):
         if isinstance(ass_obj.operand,Ass_Ast.Imm):
             instructions[cnt.row_counter].insert(cnt.col_counter,Mov(ass_obj.operand,Register("r10d")))

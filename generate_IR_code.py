@@ -12,6 +12,8 @@ class parse_to_IR():
 
         if isinstance(obj,Literal):
             return self.visitConstantExpr(obj)
+        elif isinstance(obj,Expression):
+            return self.visitExpression(obj,instruction)
         elif isinstance(obj,Unary):
             return self.visitUnaryExpr(obj,instruction)
         elif isinstance(obj,Binary):
@@ -22,6 +24,14 @@ class parse_to_IR():
             return self.visitFunStmt(obj)
         elif isinstance(obj,Return):
             return self.visitRetstmt(obj,instruction)
+        elif isinstance(obj,IDENTIFIER):
+            return self.visitIdentifier(obj)
+        elif isinstance(obj,Assignment):
+            return self.visitAssignment(obj,instruction)
+        elif isinstance(obj,Declaration):
+            return self.visitDeclaration(obj,instruction)
+
+
 
     def visitprogramStmt(self,stmt:ProgramStmt):
         declaration = self.traverse(stmt.fun_declaration)
@@ -29,15 +39,22 @@ class parse_to_IR():
 
     def visitFunStmt(self,stmt:Fun_Declaration):
         inst = []
-        for statment in stmt.statements:
+        for statment in stmt.block_items:
             instrct = []
             self.traverse(statment, instrct)
-            inst.append(instrct)
+            if instrct:
+                inst.append(instrct)
         return Fun_ction(stmt.name, inst)
     def visitRetstmt(self,stmt:Return,instructions):
         val = self.traverse(stmt.expression,instructions)
         instructions.append(Ret(val))
-
+    def visitDeclaration(self,obj:Declaration,instructions):
+        if obj.expr is not None:
+            return self.visitAssignment(Assignment(obj.name,obj.expr),instructions)
+        return
+    def visitExpression(self,Ex:Expression,instructions):
+        expr = self.traverse(Ex.expr,instructions)
+        return Copy(expr,Variable(self.make_identifer()))
     def visitUnaryExpr(self,expr:Unary,instructions):
         src = self.traverse(expr.expr,instructions)
         identifier_name = self.make_identifer()
@@ -78,6 +95,14 @@ class parse_to_IR():
             op = self.convert_to_op(operator)
             instructions.append(B_inary(op,v1,v2,dst))
             return dst
+    def visitIdentifier(self,identifer:IDENTIFIER):
+        return Variable(identifer.name)
+    def visitAssignment(self,assingment:Assignment,instructions):
+        expr = self.traverse(assingment.right,instructions)
+        identifier = assingment.left.name
+        instructions.append(Copy(expr,Variable(identifier)))
+        return Variable(identifier)
+
     def visitConstantExpr(self,expr:Literal):
         return Const(expr.value)
     def visitComplementOperator(self):

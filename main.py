@@ -4,14 +4,16 @@ from parser import Parser
 from ass_generator import*
 from generate_IR_code import parse_to_IR
 from ass_traverser import*
+from Resolution import*
 def runFile(file_path):
     with open(file_path,'r') as file:
         source = file.read()
         lexer = Lexer(source)
         lexer.scan()
-
         parser = Parser(lexer.tokens)
         obj = parser.parse()
+        resolution_pase = resolution()
+        resolution_pase.traverse_syntax_analysis(obj)
         ir_code = parse_to_IR()
         inter_med = ir_code.traverse(obj)
         assembly_obj = convert_ast_to_assembly(inter_med)
