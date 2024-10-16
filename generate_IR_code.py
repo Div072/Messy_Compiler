@@ -37,6 +37,8 @@ class parse_to_IR():
             return self.visitDeclaration(obj,instruction)
         elif isinstance(obj,If_Else):
             return self.visitIfElseStmt(obj,instruction)
+        elif isinstance(obj,Compound):
+            return self.visitBlockStmt(obj.block,instruction)
 
 
 
@@ -58,9 +60,8 @@ class parse_to_IR():
         # need to do it
         for statment in block.block_items:
             instruct = []
-            self.traverse(statment,instruct)
-            if instruct:
-                instructions.append(instruct)
+            self.traverse(statment,instructions)
+
     def visitIfElseStmt(self,if_else:If_Else,instructions):
         condition = self.traverse(if_else.conditional,instructions)
         else_label = self.make_global_identifer()

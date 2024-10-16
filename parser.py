@@ -95,13 +95,13 @@ class Parser:
                 raise ValueError("missing ) in if-else")
             if self.peek().type == Tokentype.OPENPARA:
                 self.advance() # consume {
-
-                while self.peek().type != Tokentype.CLOSEPARA and self.peek().type != Tokentype.EOF:
+                if_statements = Compound(self.block())
+                """while self.peek().type != Tokentype.CLOSEPARA and self.peek().type != Tokentype.EOF:
                     if_statements.append(self.stmt())
                 if self.peek().type == Tokentype.CLOSEPARA:
                     self.advance() #consume }
                 else:
-                    raise ValueError("Missing } in if statement")
+                    raise ValueError("Missing } in if statement")"""
             else:
                 if_statements.append(self.stmt())
 
@@ -109,12 +109,13 @@ class Parser:
                 self.advance() #consume else
                 if self.peek().type == Tokentype.OPENPARA:
                     self.advance() #consume {
-                    while self.peek().type != Tokentype.CLOSEPARA and self.peek().type != Tokentype.EOF:
+                    el_statements = Compound(self.block())
+                    """while self.peek().type != Tokentype.CLOSEPARA and self.peek().type != Tokentype.EOF:
                         el_statements.append(self.stmt())
                     if self.peek().type == Tokentype.CLOSEPARA:
                         self.advance() #consume }
                     else:
-                        raise ValueError("Missing } in else statement")
+                        raise ValueError("Missing } in else statement")"""
                     return If_Else(expr,if_statements,el_statements)
                 else:
                     el_statements.append(self.stmt())

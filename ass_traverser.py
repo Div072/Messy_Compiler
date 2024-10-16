@@ -13,6 +13,10 @@ def initiate_pointer(keyword,value):
 stack = Ass_Stack(0)
 
 def convert_ast_to_assembly(Ir_ast_node):
+    if isinstance(Ir_ast_node,list):
+        for statement in Ir_ast_node:
+            convert_ast_to_assembly(statement)
+        return
     if isinstance(Ir_ast_node,IR_code.Program):
 
         function_def = convert_ast_to_assembly(Ir_ast_node.fun_defination)
@@ -21,8 +25,8 @@ def convert_ast_to_assembly(Ir_ast_node):
     if isinstance(Ir_ast_node, IR_code.Fun_ction):
         instructions = []
         for instr in Ir_ast_node.instructions:
-            for item in instr:
-                instructions.append(convert_ast_to_assembly(item))
+
+            instructions.append(convert_ast_to_assembly(instr))
         return Function(Ir_ast_node.identifier, instructions)
 
     if isinstance(Ir_ast_node, IR_code.Ret):
