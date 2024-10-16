@@ -141,6 +141,7 @@ def second_pass_traverse(ass_obj):
         ass_obj.src = second_pass_traverse(ass_obj.src)
         ass_obj.dst = second_pass_traverse(ass_obj.dst)
         return
+    # replacing pseudo register with memory stack
     if isinstance(ass_obj,Ass_Ast.Pseudo):
         if ass_obj.identifier in stack_map:
             return Ass_Stack(stack_map[ass_obj.identifier])

@@ -12,13 +12,17 @@ def runFile(file_path):
         lexer.scan()
         parser = Parser(lexer.tokens)
         obj = parser.parse()
+        #resolution phase
         resolution_pase = resolution()
-        resolution_pase.traverse_syntax_analysis(obj)
+        resolution_pase.traverse_syntax_analysis(obj,{})
+        #generate IR code
         ir_code = parse_to_IR()
         inter_med = ir_code.traverse(obj)
+        #generating assembly obj
         assembly_obj = convert_ast_to_assembly(inter_med)
         second_pass_traverse(assembly_obj)
         third_pass_traverse(assembly_obj)
+        #generating assembly to file
         generated_ass = Ass_Generator()
         generated_ass.generate_ass(assembly_obj)
         print("debug")

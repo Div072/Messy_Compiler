@@ -24,7 +24,9 @@ class parse_to_IR():
         elif isinstance(obj,ProgramStmt):
             return self.visitprogramStmt(obj)
         elif isinstance(obj,Fun_Declaration):
-            return self.visitFunStmt(obj)
+            return self.visitFunStmt(obj,instruction)
+        elif isinstance(obj,Block):
+            return self.visitBlockStmt(obj,instruction)
         elif isinstance(obj,Return):
             return self.visitRetstmt(obj,instruction)
         elif isinstance(obj,IDENTIFIER):
@@ -42,14 +44,23 @@ class parse_to_IR():
         declaration = self.traverse(stmt.fun_declaration)
         return Program(declaration)
 
-    def visitFunStmt(self,stmt:Fun_Declaration):
-        inst = []
+    def visitFunStmt(self,stmt:Fun_Declaration,instructions):
+        self.traverse(stmt.block,instructions)
+        return Fun_ction(stmt.name,instructions)
+        """inst = []
         for statment in stmt.block_items:
             instrct = []
             self.traverse(statment, instrct)
             if instrct:
                 inst.append(instrct)
-        return Fun_ction(stmt.name, inst)
+        return Fun_ction(stmt.name, inst)"""
+    def visitBlockStmt(self,block:Block,instructions):
+        # need to do it
+        for statment in block.block_items:
+            instruct = []
+            self.traverse(statment,instruct)
+            if instruct:
+                instructions.append(instruct)
     def visitIfElseStmt(self,if_else:If_Else,instructions):
         condition = self.traverse(if_else.conditional,instructions)
         else_label = self.make_global_identifer()

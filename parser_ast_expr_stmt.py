@@ -84,9 +84,9 @@ class ProgramStmt(Stmt):
     def accept(self,visitor:Visitor):
         return visitor.visitProgramStmt(self)
 class Fun_Declaration(Stmt):
-    def __init__(self,name,block_items:[]):
+    def __init__(self,name,block:Block):
         self.name = name
-        self.block_items = block_items
+        self.block = block
     def accept(self,visitor:Visitor):
         return visitor.visitFun_DeclarationStmt(self)
 class Return(Stmt):
@@ -113,3 +113,9 @@ class If_Else(Stmt):
         self.El_staments = El_statement
     def accept(self,visitor:Visitor):
         return visitor.visitIfElseStmt(self)
+class Block(Stmt):
+    def __init__(self,block_items:list):
+        self.block_items = block_items
+class Compound(Stmt):
+    def __init__(self,block:Block):
+        self.block = block

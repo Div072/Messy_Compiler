@@ -44,26 +44,14 @@ class Parser:
 
     def main_fun_declaration(self,token:Token):
         name = token.lexeme
-        statements = []
         if self.peek().type == Tokentype.CLOSEBRA:
             self.advance()#consume)
             if self.peek().type == Tokentype.OPENPARA:
                 self.advance() #consume {
-                while self.peek().type != Tokentype.CLOSEPARA and not self.IsEnd():
-                    statements.append(self.stmt())
-
-                if self.peek().type != Tokentype.CLOSEPARA:
-                    print("Missing } in function declaration")
-                    exit()
-                else:
-                    self.advance() #consume }
-            else:
-                print("Missing { in function declaration")
-                exit()
+                return Fun_Declaration(name,self.block())
         else:
             print("Missing ) in function declaration ")
             exit()
-        return Fun_Declaration(name,statements)
     def stmt(self):
         if self.peek().type == Tokentype.RETURN:
             self.advance() #consume return
@@ -76,10 +64,23 @@ class Parser:
             return self.if_else()
         elif self.peek().type == Tokentype.SEMICOLON:
             return NULL()
+        elif self.peek().type == Tokentype.OPENPARA:
+            self.advance() #consume {
+            return Compound(self.block())
         else:
             expr = self.expr()
             self.check_semicolon()
             return Expression(expr)
+    def block(self):
+        statements = []
+        while self.peek().type != Tokentype.CLOSEPARA and not self.IsEnd():
+            statements.append(self.stmt())
+        if self.peek().type == Tokentype.CLOSEPARA:
+            self.advance() # consume }
+            return Block(statements)
+        else:
+            print("missing } in block statement")
+            exit()
 
     def if_else(self):
         self.advance() #consume if

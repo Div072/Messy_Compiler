@@ -1,10 +1,7 @@
 int main() {
-    int a;
-    int b = 10;
-    if (b>=2){
-     a = 5;
-    }else{
-        a = 10;
+    int a = 1;
+    {
+    int a = 2;
     }
     return a;
 }
