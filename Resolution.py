@@ -55,7 +55,7 @@ class resolution():
     def visitCompound(self,compund:Compound,variable_map):
         copy_map = copy.deepcopy(variable_map)
         for key,value in copy_map.items():
-            value[1] = False
+            value[1] = False # setting every value to False so that same name variable can exist in block scope
         self.traverse_syntax_analysis(compund.block,copy_map)
 
     def visitReturnStmt(self,ret:Return,variable_map):
