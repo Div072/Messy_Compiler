@@ -21,11 +21,14 @@ The goal of this project is to build a compiler for a subset of the C language f
 ### Installation
 
 1. Clone the repository:
+
     ```sh
     git clone https://github.com/Div072/Messy_Compiler.git
     cd Messy_Compiler
     ```
+
 2. (Optional) Create a virtual environment:
+
     ```sh
     python -m venv venv
     source venv/bin/activate  # On Windows use: venv\Scripts\activate
@@ -35,8 +38,9 @@ The goal of this project is to build a compiler for a subset of the C language f
 
 Compile a simple C-like source file:
 
-```sh
-python main.py path/to/source_file.c
+```Makefile
+make -  to generate the output file 
+make run - generated output file without cleaning step
 ```
 
 > **Note:** The input language is a C subset. See [Supported Features](#supported-features).
@@ -44,6 +48,7 @@ python main.py path/to/source_file.c
 ### Example
 
 Given the following input code:
+
 ```c
 int main() {
     int a = 5;
@@ -51,6 +56,7 @@ int main() {
     return a + b;
 }
 ```
+
 The compiler will tokenize, parse, analyze, and generate corresponding (x86) assembly output.
 
 ## Supported Features
@@ -79,7 +85,6 @@ Messy_Compiler/
 ├── README.md
 └── LICENSE
 ```
-
 
 ## Roadmap
 
